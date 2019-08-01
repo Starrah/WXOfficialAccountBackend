@@ -8,6 +8,11 @@ import utils.assertBlank
 import java.io.File
 import java.util.*
 
+/**
+ * 根据指定格式（宣委标准生日表格式，不再另行上传）的csv文件读取数据，构造对象并生成数据库。
+ * @param csvFileName csv文件的文件名
+ * @author Starrah
+ */
 fun makeUsers(csvFileName: String) {
     val collection = DB.getCollection("users")
     val scan = Scanner(File(csvFileName))
@@ -38,10 +43,10 @@ fun makeUsers(csvFileName: String) {
                 birthday
             )
             val json = JSON.toJSONString(user)
-            val bson = Document.parse(json)
+            val bson = Document.parse(json)!!
             collection.replaceOne(Document().apply {
-                append("tHUId", strs[1])
-            },
+                    append("tHUId", strs[1])
+                },
                 bson,
                 ReplaceOptions().upsert(true)
             )
