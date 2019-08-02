@@ -1,11 +1,11 @@
 @file:Suppress("RedundantVisibilityModifier", "unused")
 
-package users
+package wxrbj
 
-import com.alibaba.fastjson.JSON
 import com.mongodb.client.MongoCollection
-import com.mongodb.client.model.ReplaceOptions
 import org.bson.Document
+import users.DBUser
+import users.DBUsers
 import utils.*
 import java.lang.Exception
 import java.util.*
@@ -26,7 +26,8 @@ enum class Gender{
  * 包含生日类型、标准生日（从身份证号中提取）、上报的公历生日、农历生日、生日已过次数等信息。
  */
 class Birthday(var type: BirthdayType = BirthdayType.UNKNOWN,
-               val standard: String) {
+               val standard: String)
+{
 
     /**
      * 生日类型
@@ -53,17 +54,20 @@ class Birthday(var type: BirthdayType = BirthdayType.UNKNOWN,
     var passed = 0
 }
 
-public class User(
-    /** openId，可从消息中获取 */var openId: String? = null,
+
+public class UserRBJ(
+    /** openId，可从消息中获取 */openId: String? = null,
     /** 学号 */val tHUId: String,
-    /** 姓名 */val name: String,
+    /** 姓名 */name: String,
     /** 性别 */val gender: Gender,
     /** 班号（整型，例如81/82/83） */val classNo: Int,
     /** 宿舍（字符串） */var room: String?,
     /** 手机号（字符串） */var phone: String?,
     /** 邮箱 */var email: String?,
-    /** 生日信息 */var birthday: Birthday
-): Saveable {
+    /** 生日信息 */var birthday: Birthday,
+    /**  数据库集合对象 */collection: MongoCollection<Document>?
+): DBUser(openId, name, collection)
+{
 
     /**
      * 下一个生日；出于便于阅读考量，是八位yyyyMMdd数字；
@@ -75,7 +79,10 @@ public class User(
     /**
      * 用于反序列化的空构造函数
      */
-    public constructor(): this(null, "", "", Gender.BOY, 0, null, null, null, Birthday(Birthday.BirthdayType.UNKNOWN, "")) {}
+    public constructor(): this(null, "", "",
+        Gender.BOY, 0, null, null, null,
+        Birthday(Birthday.BirthdayType.UNKNOWN, ""), null
+    ) {}
 
     init {
         if(birthday.standard != "") {
@@ -131,11 +138,11 @@ public class User(
                 )
                 var solarStr = CalendarUtil.lunarToSolar(lunarStr, birthday.lunar!![2] > 0)!!
                 if (YMDFormat.parse(solarStr).year4bit > year) {
-                    val lunarStr = "" + (year - 1) + String.format("%02d", birthday.lunar!![0]) + String.format(
+                    val lunarStr2 = "" + (year - 1) + String.format("%02d", birthday.lunar!![0]) + String.format(
                         "%02d",
                         birthday.lunar!![1]
                     )
-                    val tempSolrStr2 = CalendarUtil.lunarToSolar(lunarStr, birthday.lunar!![2] > 0)!!
+                    val tempSolrStr2 = CalendarUtil.lunarToSolar(lunarStr2, birthday.lunar!![2] > 0)!!
                     //解决另一种极端情况：在有闰年时，某一公历年份内可能不存在某一农历
                     if (YMDFormat.parse(tempSolrStr2).year4bit == year) solarStr = tempSolrStr2
                 }
@@ -144,67 +151,36 @@ public class User(
         }
         return YMDFormat.parse(dateStr)
     }
-
-    /**
-     * 将对象中的所有信息同步到数据库里面。
-     */
-    override fun save(){
-        val q = Document.parse(JSON.toJSONString(this))
-        Users.collection.replaceOne(
-            Document().apply {
-                append("tHUId", tHUId)
-            },
-            this.ToBSONDoc()!!,
-            ReplaceOptions().upsert(true)
-        )
-    }
 }
 
+
 /**
- * Users单例，管理所有的User信息。
+ * UsersRBJ单例，管理所有的UserRBJ信息。
  *
- * 在该单例构造时自动从数据库中获取并实例化许多User对象。
+ * 在该单例构造时自动从数据库中获取并实例化许多UserRBJ对象（DBUser泛型类提供的功能）。
  *
  * 利用该单例可以通过openId、学号、姓名等方法查找特定用户，亦可获得全部或满足一定条件的所有用户。
  */
-public object Users: Saveable{
-    private val _usersList = ArrayList<User>()
-    private val _openIdMap = LinkedHashMap<String, User>()
-    private val _tHUIdMap = LinkedHashMap<String, User>()
-    private val _nameMap = LinkedHashMap<String, User>()
-
-    /**
-     * 用户信息对应的数据库集合
-     */
-    public val collection: MongoCollection<Document> = DB.getCollection("users")
+public object UsersRBJ: DBUsers<UserRBJ>(DB.getCollection("users"), UserRBJ::class.java) {
+    private val _tHUIdMap = LinkedHashMap<String, UserRBJ>()
+    private val _nameMap = LinkedHashMap<String, UserRBJ>()
 
     init {
-        val collection = DB.getCollection("users")
-        for(document in collection.find()){
-            val user = document.ToObject(User::class.java)!!
-            _usersList.add(user)
-            user.openId?.let { _openIdMap.put(it, user) }
+        for(user in _usersList){
             _tHUIdMap[user.tHUId] = user
-            _nameMap[user.name] = user
+            user.name?.let { _nameMap.put(it, user) }
         }
-    }
-
-    /**
-     * 获取全部用户对应的数组。
-     */
-    public fun allUsers(): ArrayList<User> {
-        val newList = ArrayList<User>(_usersList)
-        return newList
+        GlobalLogger.info("UsersRBJ Init SUCCESS: users ${_usersList.size}")
     }
 
     /**
      * 获取部分用户。目前包括班级和性别两个条件，查找满足所有查询条件的用户。
      * @param classNo: Array<Int>? 值为null时，表示查找所有班级的用户；否则，只查找classNo列表中包含的用户。
      * @param gender: Gender 性别。值为null时表示所有性别，否则传入枚举类型表示只查找特定性别。
-     * @return ArrayList<User> 满足所有条件的用户的列表。
+     * @return ArrayList<UserRBJ> 满足所有条件的用户的列表。
      */
-    public fun filterUsers(classNo: List<Int>? = null, gender: Gender? = null): ArrayList<User> {
-        val newList = ArrayList<User>()
+    public fun filterUsers(classNo: List<Int>? = null, gender: Gender? = null): ArrayList<UserRBJ> {
+        val newList = ArrayList<UserRBJ>()
         for(user in _usersList){
             if ((classNo?.contains(user.classNo) != false) && (gender?.let { it === user.gender } != false)) {
                 newList.add(user)
@@ -214,20 +190,11 @@ public object Users: Saveable{
     }
 
     /**
-     * 根据openId查找用户。
-     * @param openId
-     * @return User对象
-     */
-    public fun byOpenId(openId: String): User? {
-        return _openIdMap[openId]
-    }
-
-    /**
      * 根据学号查找用户。
      * @param tHUId 学号（字符串）
      * @return User对象
      */
-    public fun byTHUId(tHUId: String): User? {
+    public fun byTHUId(tHUId: String): UserRBJ? {
         return _tHUIdMap[tHUId]
     }
 
@@ -236,16 +203,8 @@ public object Users: Saveable{
      * @param name 姓名
      * @return User对象
      */
-    public fun byName(name: String): User? {
+    public fun byName(name: String): UserRBJ? {
         return _nameMap[name]
     }
 
-    /**
-     * 保存所有用户的数据，即对所有用户调用Save方法。
-     */
-    override fun save() {
-        for(user in _usersList){
-            user.save()
-        }
-    }
 }

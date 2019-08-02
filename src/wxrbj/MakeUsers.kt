@@ -1,4 +1,4 @@
-package users
+package wxrbj
 
 import com.alibaba.fastjson.JSON
 import com.mongodb.client.model.ReplaceOptions
@@ -31,7 +31,7 @@ fun makeUsers(csvFileName: String) {
             } else if (birthdayType == Birthday.BirthdayType.LUNAR) {
                 birthday.lunar = arrayOf(strs[13].toInt(), strs[14].toInt(), 0)
             }
-            val user = User(
+            val user = UserRBJ(
                 strs[0].assertBlank(),
                 strs[1],
                 strs[2],
@@ -40,13 +40,13 @@ fun makeUsers(csvFileName: String) {
                 strs[5].assertBlank(),
                 strs[6].assertBlank(),
                 strs[7].assertBlank(),
-                birthday
+                birthday,
+                collection
             )
             val json = JSON.toJSONString(user)
             val bson = Document.parse(json)!!
-            collection.replaceOne(Document().apply {
-                    append("tHUId", strs[1])
-                },
+            collection.replaceOne(
+                Document().append("tHUId", strs[1]),
                 bson,
                 ReplaceOptions().upsert(true)
             )
@@ -54,12 +54,8 @@ fun makeUsers(csvFileName: String) {
             System.err.println(e.message)
         }
     }
-    collection.createIndex(BsonDocument().apply {
-        append("THUId", BsonInt32(1))
-    })
-    collection.createIndex(BsonDocument().apply {
-        append("openId", BsonInt32(1))
-    })
+    collection.createIndex(BsonDocument().append("THUId", BsonInt32(1)))
+    collection.createIndex(BsonDocument().append("openId", BsonInt32(1)))
 }
 
 fun main(){

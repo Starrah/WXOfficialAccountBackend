@@ -10,5 +10,9 @@
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="mongo-java-driver-3.9.1" level="project" />
     <orderEntry type="library" name="fastjson-1.2.58" level="project" />
+    <orderEntry type="library" name="json-20180813" level="project" />
+    <orderEntry type="library" name="kotlinx-coroutines-core-1.1.1-javadoc" level="project" />
+    <orderEntry type="library" name="tomcat-lib" level="project" />
+    <orderEntry type="library" name="commons-codec-1.11" level="project" />
   </component>
 </module>
