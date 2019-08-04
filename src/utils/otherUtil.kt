@@ -4,6 +4,7 @@ package utils
 
 import com.alibaba.fastjson.JSON
 import org.bson.Document
+import java.awt.Color
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,4 +50,52 @@ fun Any?.ToBSONDoc(): Document? {
  */
 fun <T> Document?.ToObject(clazz: Class<T>): T? {
     return if (this != null) JSON.parseObject(this.toJson(), clazz) else null
+}
+
+// 驼峰命名转下划线命名 https://blog.csdn.net/sword_out/article/details/51518097
+fun camelToUnderline(str: String?): String {
+    if (str == null || str.trim { it <= ' ' }.isEmpty()) {
+        return ""
+    }
+
+    val len = str.length
+    val sb = StringBuilder(len)
+    for (i in 0 until len) {
+        val c = str[i]
+        if (Character.isUpperCase(c)) {
+            if(i != 0)sb.append("_")
+            sb.append(Character.toLowerCase(c))
+        } else {
+            sb.append(c)
+        }
+    }
+    return sb.toString()
+}
+
+open class WXAPI {
+    var errmsg: String? = null
+    var errcode: Int = 0
+}
+
+class WXAPIException(val errcode: Int, errmsg: String?): Exception(errmsg) {}
+
+fun assertWXAPIErr(bean: WXAPI?){
+    bean!!
+    if(bean.errcode != 0)throw WXAPIException(bean.errcode, bean.errmsg)
+}
+
+//Color与颜色16进制字符串互转 https://blog.csdn.net/signsmile/article/details/3899876
+fun String2Color(str: String): Color {
+    val i = Integer.parseInt(str.substring(1), 16)
+    return Color(i)
+}
+
+fun Color2String(color: Color): String {
+    var R = Integer.toHexString(color.red)
+    R = if (R.length < 2) "0$R" else R
+    var B = Integer.toHexString(color.blue)
+    B = if (B.length < 2) "0$B" else B
+    var G = Integer.toHexString(color.green)
+    G = if (G.length < 2) "0$G" else G
+    return "#$R$B$G"
 }

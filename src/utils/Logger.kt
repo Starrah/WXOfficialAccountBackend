@@ -85,7 +85,7 @@ enum class MessageReceiveSendType{
 open class MessageDBLogger(collectionName: String): DBLogger(collectionName) {
     fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: Document? = null, RSType: MessageReceiveSendType = MessageReceiveSendType.RECEIVE, level: LogLevel = LogLevel.INFO) {
         val document = Document()
-        document["type"] = RSType
+        document["type"] = RSType.name
         userDoc?.let { document["user"] = it  }
         reqMessage.logDoc()?.let { document["received"] = it }
         replyer?.let { document["replyer"] = it.nameInLog }

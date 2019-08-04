@@ -2,6 +2,7 @@ package account
 
 import message.Message
 import message.NoMessage
+import org.bson.Document
 import java.lang.Exception
 
 open class MessageDispatcher(val account: OfficialAccount){
@@ -22,7 +23,7 @@ open class MessageDispatcher(val account: OfficialAccount){
     }
 
     protected open fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?){
-        val userDoc = account.users?.byOpenId(reqMessage.FromUserName)?.logDoc()
+        val userDoc = account.users?.byOpenId(reqMessage.FromUserName)?.logDoc()?: (Document().append("openId", reqMessage.FromUserName)!!)
         account.msgLogger?.logMessage(reqMessage, resMessage, replyer, userDoc)
     }
 

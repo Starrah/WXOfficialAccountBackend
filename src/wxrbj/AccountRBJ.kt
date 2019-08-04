@@ -2,23 +2,24 @@ package wxrbj
 
 import account.OfficialAccount
 import account.OfficialAccountServlet
+import utils.ForceInit
 import utils.GlobalLogger
 import utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
 
 object AccountRBJ: OfficialAccount(
-    "QWERT",
+    "XXXXX",
     GlobalLogger,
     MessageDBLogger("messages"),
     UsersRBJ,
     CONFIG.TESTACCOUNTAPPID,
     CONFIG.TESTACCOUNTAPPSECRET)
 {
-    override val users: UsersRBJ = UsersRBJ
-
-    init {
-        logger?.info("AccountRBJ Init SUCCESS")
+    override fun forceInits(): List<ForceInit> {
+        return listOf(HelloReplyer)
     }
+
+    override val users: UsersRBJ = UsersRBJ
 }
 
 @WebServlet("/")

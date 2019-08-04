@@ -83,10 +83,11 @@ fun queryToString(query: Map<String, String>): String{
  * @return 表示query的Map，例如mapOf("qwq" to "a", "yyy" to b)
  * @throws Exception 如果字符串中含有多个?，或&、=出现的位置不合适
  */
-fun stringToQuery(str: String): Map<String, String>{
+fun stringToQuery(str: String?): Map<String, String>{
+    val map: MutableMap<String, String> = mutableMapOf()
+    if(str == null) return map
     val indexOfMark = str.indexOf('?')
     val realStr = if(indexOfMark != -1) str else str.substring(indexOfMark+1, str.length)
-    val map: MutableMap<String, String> = mutableMapOf()
     val pairs = realStr.split('&')
     for(pair in pairs){
         val pairSplit = pair.split('=')
