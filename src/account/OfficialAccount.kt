@@ -1,6 +1,8 @@
 package account
 
 import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONObject
+import components.MediaOperation
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -8,9 +10,10 @@ import message.Message
 import message.TemplateMessage
 import users.DBUsers
 import utils.*
+import java.awt.Component
 import java.util.*
 
-abstract class OfficialAccount (val token: String, val logger: Logger? = null, open val msgLogger: MessageDBLogger? = null, open val users: DBUsers<*>?, private val APPID: String? = null, private val APPSECRET: String? = null) {
+abstract class OfficialAccount (val token: String, val logger: Logger? = null, open val msgLogger: MessageDBLogger? = null, open val users: DBUsers<*>?, private val APPID: String? = null, private val APPSECRET: String? = null, val operToken: String = token) {
     var accessToken: String? = null
         private set
 
@@ -40,19 +43,9 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
         }
     }
 
-    init {
-        updateAccessToken()
-        val timer = Timer()
-        timer.schedule(object: TimerTask(){
-            override fun run() {
-                updateAccessToken()
-            }
-        }, ACCESS_TOKEN_UPDATE_INTERVAL, ACCESS_TOKEN_UPDATE_INTERVAL)
-    }
-
     val dispatcher = MessageDispatcher(this)
 
-    val operation = Operation()
+    val operation = Operation(this)
 
     val SERVE_MESSAGE_URL_PREFIX = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token="
 
@@ -77,12 +70,12 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
         runBlocking { sendServeMessage(message) }
     }
 
-    /**
-     * 由于tomcat的糟糕特性，一个类在被引用之前不会被加载。因此必须手动引用才能保证定义的Replyer注册成功。
-     *
-     * 于是，任何OfficialAccount类的子类必须重载此方法，并返回一个List<ForceInit>。程序保证在第一个请求被Servlet处理之前，所有此函数返回的ForceInit对象均被初始化成功，并正常注册。
-     */
-    abstract fun forceInits(): List<ForceInit>;
+//    /**
+//     * 由于tomcat的糟糕特性，一个类在被引用之前不会被加载。因此必须手动引用才能保证定义的Replyer注册成功。
+//     *
+//     * 于是，任何OfficialAccount类的子类必须重载此方法，并返回一个List<ForceInit>。程序保证在第一个请求被Servlet处理之前，所有此函数返回的ForceInit对象均被初始化成功，并正常注册。
+//     */
+//    abstract fun forceInits(): List<ForceInit>;
 
     val TEMPLATE_MESSAGE_URL_PREFIX = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="
     /**
@@ -104,5 +97,35 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
      */
     fun sendTemplateMessageBlocking(message: TemplateMessage){
         runBlocking { sendTemplateMessage(message) }
+    }
+
+    private val _components = mutableListOf<AccountComponent>()
+
+    val components: List<AccountComponent>
+        get(): List<AccountComponent> = _components
+
+    fun getComponentByClass(clazz: Class<*>): AccountComponent?{
+        val temp = _components.filter { it::class.java == clazz }
+        return if(temp.isNotEmpty()) temp[temp.size-1] else null
+    }
+
+    fun use(component: AccountComponent){
+        _components.add(component)
+        component.registerTo(this)
+    }
+
+    init {
+        updateAccessToken()
+        val timer = Timer()
+        timer.schedule(object: TimerTask(){
+            override fun run() {
+                updateAccessToken()
+            }
+        }, ACCESS_TOKEN_UPDATE_INTERVAL, ACCESS_TOKEN_UPDATE_INTERVAL)
+        operation.registerHandler("accessToken") { obj->
+            operation.verifyTokenThrow(obj)
+            JSONObject().apply { put("accessToken", accessToken) }
+        }
+        use(MediaOperation())
     }
 }

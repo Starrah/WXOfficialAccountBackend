@@ -19,9 +19,9 @@ abstract class OfficialAccountServlet(): HttpServlet() {
 
     override fun init() {
         super.init()
-        for(fi in account.forceInits()){
-            fi.hashCode()//随便调用一个方法，以保证它被加载
-        }
+//        for(fi in account.forceInits()){
+//            fi.hashCode()//随便调用一个方法，以保证它被加载
+//        }
     }
 
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
@@ -30,9 +30,14 @@ abstract class OfficialAccountServlet(): HttpServlet() {
             resp.characterEncoding = "UTF-8"
             val query = stringToQuery(req.queryString)
             if (Operation.assertIsOperation(query)) {
-                val res = account.operation.reqArrive(query, null)
-                res?.let { resp.writer.print(it.toJSONString()) }
-                return
+                try {
+                    val res = account.operation.reqArrive(query, null)
+                    res?.let { resp.writer.print(it.toJSONString()) }
+                    return
+                }catch (e: Exception){
+                    resp.sendError(400, e.message)
+                    return
+                }
             }
 
             if (query["echostr"] != null) {

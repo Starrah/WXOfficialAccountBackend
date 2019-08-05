@@ -2,7 +2,6 @@ package wxrbj
 
 import account.OfficialAccount
 import account.OfficialAccountServlet
-import utils.ForceInit
 import utils.GlobalLogger
 import utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
@@ -15,8 +14,12 @@ object AccountRBJ: OfficialAccount(
     CONFIG.TESTACCOUNTAPPID,
     CONFIG.TESTACCOUNTAPPSECRET)
 {
-    override fun forceInits(): List<ForceInit> {
-        return listOf(HelloReplyer)
+//    override fun forceInits(): List<ForceInit> {
+//        return listOf(HelloReplyer)
+//    }
+
+    init {
+        use(HelloReplyer)
     }
 
     override val users: UsersRBJ = UsersRBJ
