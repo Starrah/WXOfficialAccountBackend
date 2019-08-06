@@ -5,6 +5,8 @@ import account.OfficialAccountServlet
 import utils.GlobalLogger
 import utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
+import components.MediaOperation
+import utils.DB
 
 object AccountRBJ: OfficialAccount(
     "XXXXX",
@@ -19,6 +21,7 @@ object AccountRBJ: OfficialAccount(
 //    }
 
     init {
+        use(MediaOperation(DB.getCollection("medias")))
         use(HelloReplyer)
     }
 

@@ -127,6 +127,5 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
             operation.verifyTokenThrow(obj)
             JSONObject().apply { put("accessToken", accessToken) }
         }
-        use(MediaOperation())
     }
 }

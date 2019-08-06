@@ -4,30 +4,27 @@ import account.AccountComponent
 import account.OfficialAccount
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.ReplaceOptions
 import message.ImageMessage
+import utils.Saveable
+import utils.ToBSONDoc
 import utils.assertBlank
+import org.bson.Document
 
 enum class MediaType(clazz: Class<*>?){
     image(ImageMessage::class.java),
 }
 
-class Media()
+class Media(type: MediaType = MediaType.image,
+            mediaId: String = "",
+            key: String = "",
+            description: String? = null)
 {
-    var description: String? = null
-    var key: String = ""
-    var mediaId: String = ""
-    var type: MediaType = MediaType.image
-
-    constructor(type: MediaType,
-                mediaId: String,
-                key: String,
-                description: String?): this()
-    {
-        this.type = type
-        this.mediaId = mediaId
-        this.key = key
-        this.description = description
-    }
+    var description = description
+    var key = key
+    var mediaId = mediaId
+    var type = type
 
     fun assertValidation(){
         if(mediaId == "" || key == "")throw Exception("Media信息无效！")
@@ -51,7 +48,7 @@ class Media()
  *
  * remove：参数key，要删掉的素材的key
  */
-class MediaOperation(): AccountComponent{
+class MediaOperation(val collection: MongoCollection<Document>): AccountComponent, Saveable{
     override fun registerTo(account: OfficialAccount) {
         account.operation.registerHandler("media"){ obj->
             account.operation.verifyTokenThrow(obj)
@@ -98,11 +95,13 @@ class MediaOperation(): AccountComponent{
 
     fun set(key: String, media: Media){
         mediaMap[key] = media
+        saveOneKey(key)
     }
 
     fun remove(key: String): Media?{
         val media = mediaMap[key]
         mediaMap.remove(key)
+        collection.deleteOne(Document().append("key", key))
         return media
     }
 
@@ -116,6 +115,27 @@ class MediaOperation(): AccountComponent{
 
     fun get(key: String): Media?{
         return mediaMap[key]
+    }
+
+    private fun saveOneKey(key: String){
+        val value = mediaMap[key];
+        if(value != null){
+            collection.replaceOne(
+                Document().append("key", key),
+                value.ToBSONDoc()!!,
+                ReplaceOptions().upsert(true)
+            )
+        }
+    }
+
+    override fun save() {
+        for((key,value) in mediaMap){
+            collection.replaceOne(
+                Document().append("key", key),
+                value.ToBSONDoc()!!,
+                ReplaceOptions().upsert(true)
+            )
+        }
     }
 
 }
