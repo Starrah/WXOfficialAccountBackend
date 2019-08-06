@@ -1,11 +1,16 @@
 package utils
 
 import account.MessageReplyer
+import com.alibaba.fastjson.JSONObject
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.CreateCollectionOptions
 import message.Message
+import message.TextMessage
 import org.bson.Document
-import users.DBUser
+import java.io.File
+import java.io.FileWriter
+import java.nio.charset.Charset
+import java.text.SimpleDateFormat
 import java.util.*
 
 enum class LogLevel {
@@ -18,7 +23,7 @@ enum class LogLevel {
  * 日志记录器接口
  */
 interface Logger {
-    fun log(message: String, level: LogLevel = LogLevel.INFO);
+    fun log(message: String, level: LogLevel = LogLevel.INFO)
 
     fun error(message: String){
         log(message, LogLevel.ERROR)
@@ -31,6 +36,10 @@ interface Logger {
     fun info(message: String){
         log(message, LogLevel.INFO)
     }
+}
+
+interface MessageLogger{
+    fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: JSONObject? = null, RSType: MessageReceiveSendType = MessageReceiveSendType.RECEIVE, level: LogLevel = LogLevel.INFO)
 }
 
 open class DBLogger(collectionName: String) : Logger {
@@ -82,8 +91,8 @@ enum class MessageReceiveSendType{
     SEND,
 }
 
-open class MessageDBLogger(collectionName: String): DBLogger(collectionName) {
-    fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: Document? = null, RSType: MessageReceiveSendType = MessageReceiveSendType.RECEIVE, level: LogLevel = LogLevel.INFO) {
+open class MessageDBLogger(collectionName: String): DBLogger(collectionName), MessageLogger {
+    override fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: JSONObject?, RSType: MessageReceiveSendType, level: LogLevel) {
         val document = Document()
         document["type"] = RSType.name
         userDoc?.let { document["user"] = it  }
@@ -95,3 +104,31 @@ open class MessageDBLogger(collectionName: String): DBLogger(collectionName) {
 }
 
 val GlobalLogger = DBLogger("runningLogs")
+
+open class FileLogger(file: File): Logger{
+    val writer: FileWriter
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    init {
+        writer = FileWriter(file, Charset.forName("UTF-8"), true)
+    }
+    override fun log(message: String, level: LogLevel) {
+        writer.write(dateFormat.format(Date()) + "," + level.name + "," + message + "\r\n")
+    }
+}
+
+open class MessageFileLogger(file: File): FileLogger(file), MessageLogger{
+    override fun logMessage(
+        reqMessage: Message,
+        resMessage: Message,
+        replyer: MessageReplyer<*>?,
+        userDoc: JSONObject?,
+        RSType: MessageReceiveSendType,
+        level: LogLevel
+    ) {
+        val openId = (userDoc?.get("openId") as String?)?:""
+        val name = (userDoc?.get("name") as String?)?:""
+        val req = if(reqMessage is TextMessage) reqMessage.Content else reqMessage.MsgType.name
+        val res = if(resMessage is TextMessage) resMessage.Content else resMessage.MsgType.name
+        log("$openId,$name,${RSType.name},$req,${replyer?.nameInLog},$res", level)
+    }
+}

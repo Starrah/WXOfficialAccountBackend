@@ -66,9 +66,14 @@ abstract class OfficialAccountServlet(): HttpServlet() {
             val query = stringToQuery(req.queryString)
             val body: String = req.reader.readText()
             if(Operation.assertIsOperation(query)){
-                val res = account.operation.reqArrive(query, body)
-                res?.let { resp.writer.print(it.toJSONString()) }
-                return
+                try {
+                    val res = account.operation.reqArrive(query, null)
+                    res?.let { resp.writer.print(it.toJSONString()) }
+                    return
+                }catch (e: Exception){
+                    resp.sendError(400, e.message)
+                    return
+                }
             }
 
             if(query["signature"] != null) {

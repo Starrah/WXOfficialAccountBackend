@@ -3,8 +3,12 @@
 package utils
 
 import com.alibaba.fastjson.JSON
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.bson.Document
 import java.awt.Color
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -98,4 +102,86 @@ fun Color2String(color: Color): String {
     var G = Integer.toHexString(color.green)
     G = if (G.length < 2) "0$G" else G
     return "#$R$B$G"
+}
+
+/**
+ * 协程异步地把一个InputSteam中的全部数据输出到OutputStream中，并关闭两个流。
+ *
+ * @param outputStream
+ * @param bufferSize 缓冲区大小。非正值则为无缓冲区。
+ */
+suspend fun InputStream.pipe(outputStream: OutputStream, bufferSize: Int = 8192){
+    withContext(Dispatchers.IO){
+        if(bufferSize > 0) {
+            val bufferIn = BufferedInputStream(this@pipe, bufferSize)
+            val bufferOut = BufferedOutputStream(outputStream, bufferSize)
+            try {
+                while (true) {
+                    val bytes = bufferIn.readNBytes(bufferSize)
+                    if (bytes.isEmpty()) break
+                    bufferOut.write(bytes)
+                    bufferOut.flush()
+                    yield()
+                }
+            } finally {
+                bufferIn.close()
+                bufferOut.close()
+            }
+        }else{
+            try {
+                while (true) {
+                    val bytes = this@pipe.readNBytes(bufferSize)
+                    if (bytes.isEmpty()) break
+                    outputStream.write(bytes)
+                    outputStream.flush()
+                    yield()
+                }
+            } finally {
+                this@pipe.close()
+                outputStream.close()
+            }
+        }
+    }
+}
+
+/**
+ * 协程异步地把一个Reader中的全部数据输出到Writer中，并关闭两个流。
+ *
+ * @param writer
+ * @param bufferSize 缓冲区大小。非正值则为无缓冲区。
+ */
+suspend fun Reader.pipe(writer: Writer, bufferSize: Int = 8192){
+    withContext(Dispatchers.IO){
+        if(bufferSize > 0) {
+            val bufferIn = BufferedReader(this@pipe, bufferSize)
+            val bufferOut = BufferedWriter(writer, bufferSize)
+            try {
+                while (true) {
+                    val bytes = CharArray(bufferSize)
+                    val count = bufferIn.read(bytes)
+                    if (count < 0) break
+                    bufferOut.write(bytes, 0, count)
+                    bufferOut.flush()
+                    yield()
+                }
+            } finally {
+                bufferIn.close()
+                bufferOut.close()
+            }
+        }else{
+            try {
+                while (true) {
+                    val bytes = CharArray(bufferSize)
+                    val count = this@pipe.read(bytes)
+                    if (count < 0) break
+                    writer.write(bytes, 0, count)
+                    writer.flush()
+                    yield()
+                }
+            } finally {
+                this@pipe.close()
+                writer.close()
+            }
+        }
+    }
 }

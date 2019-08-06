@@ -15,11 +15,8 @@ import utils.ToObject
 open class DBUsers <T: DBUser> (
     /** 用户信息对应的数据库集合 */ val collection: MongoCollection<Document>,
     /** 被泛型实例化的类对象 */clazz: Class<T>
-): Saveable
+): Users<T>(clazz), Saveable
 {
-    protected val _usersList = ArrayList<T>()
-    private val _openIdMap = LinkedHashMap<String, T>()
-
     init {
         for (document in collection.find()) {
             val user = document.ToObject(clazz)
@@ -32,14 +29,6 @@ open class DBUsers <T: DBUser> (
     }
 
     /**
-     * 获取全部用户对应的数组。
-     */
-    fun allUsers(): ArrayList<T> {
-        val newList = ArrayList<T>(_usersList)
-        return newList
-    }
-
-    /**
      * 保存所有用户的数据，即对所有用户调用Save方法。
      */
     override fun save() {
@@ -48,12 +37,20 @@ open class DBUsers <T: DBUser> (
         }
     }
 
-    /**
-     * 根据openId查找用户。
-     * @param openId
-     * @return User对象
-     */
-    public fun byOpenId(openId: String): T? {
-        return _openIdMap[openId]
+    override fun addUser(user: T) {
+        super.addUser(user)
+        user.save()
+    }
+
+    override fun removeUser(user: T): Boolean {
+        val res = super.removeUser(user)
+        if(res) {
+            val doc: Document?
+            if (user.openId != null) doc = Document().append("openId", user.openId)
+            else if (user.name != null) doc = Document().append("name", user.name)
+            else doc = null
+            doc?.let { collection.deleteOne(it) }
+        }
+        return res
     }
 }

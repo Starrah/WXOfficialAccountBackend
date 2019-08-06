@@ -1,5 +1,6 @@
 package account
 
+import com.alibaba.fastjson.JSONObject
 import message.Message
 import message.NoMessage
 import org.bson.Document
@@ -23,7 +24,7 @@ open class MessageDispatcher(val account: OfficialAccount){
     }
 
     protected open fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?){
-        val userDoc = account.users?.byOpenId(reqMessage.FromUserName)?.logDoc()?: (Document().append("openId", reqMessage.FromUserName)!!)
+        val userDoc = account.users?.byOpenId(reqMessage.FromUserName)?.logDoc()?: (JSONObject().apply{ put("openId", reqMessage.FromUserName) }!!)
         account.msgLogger?.logMessage(reqMessage, resMessage, replyer, userDoc)
     }
 

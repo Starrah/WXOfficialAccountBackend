@@ -9,11 +9,12 @@ import kotlinx.coroutines.runBlocking
 import message.Message
 import message.TemplateMessage
 import users.DBUsers
+import users.Users
 import utils.*
 import java.awt.Component
 import java.util.*
 
-abstract class OfficialAccount (val token: String, val logger: Logger? = null, open val msgLogger: MessageDBLogger? = null, open val users: DBUsers<*>?, private val APPID: String? = null, private val APPSECRET: String? = null, val operToken: String = token) {
+abstract class OfficialAccount (val token: String, val logger: Logger? = null, open val msgLogger: MessageDBLogger? = null, open val users: Users<*>?, private val APPID: String? = null, private val APPSECRET: String? = null, val operToken: String = token) {
     var accessToken: String? = null
         private set
 
