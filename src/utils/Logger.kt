@@ -3,6 +3,7 @@ package utils
 import account.MessageReplyer
 import com.alibaba.fastjson.JSONObject
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CreateCollectionOptions
 import message.Message
 import message.TextMessage
@@ -42,19 +43,19 @@ interface MessageLogger{
     fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: JSONObject? = null, RSType: MessageReceiveSendType = MessageReceiveSendType.RECEIVE, level: LogLevel = LogLevel.INFO)
 }
 
-open class DBLogger(collectionName: String) : Logger {
+open class DBLogger(collectionName: String, database: MongoDatabase) : Logger {
 
     val collection: MongoCollection<Document>
 
     init{
-        val collections = DB.listCollectionNames()
+        val collections = database.listCollectionNames()
         if(!collections.contains(collectionName)) {
-            DB.createCollection(
+            database.createCollection(
                 collectionName,
                 CreateCollectionOptions().capped(true).maxDocuments(1000000).sizeInBytes(1000000000)
             )
         }
-        collection = DB.getCollection(collectionName)
+        collection = database.getCollection(collectionName)
     }
 
     protected open fun attachTimeLevelMeta(document: Document, level: LogLevel){
@@ -91,7 +92,7 @@ enum class MessageReceiveSendType{
     SEND,
 }
 
-open class MessageDBLogger(collectionName: String): DBLogger(collectionName), MessageLogger {
+open class MessageDBLogger(collectionName: String, database: MongoDatabase): DBLogger(collectionName, database), MessageLogger {
     override fun logMessage(reqMessage: Message, resMessage: Message, replyer: MessageReplyer<*>?, userDoc: JSONObject?, RSType: MessageReceiveSendType, level: LogLevel) {
         val document = Document()
         document["type"] = RSType.name
@@ -103,7 +104,9 @@ open class MessageDBLogger(collectionName: String): DBLogger(collectionName), Me
     }
 }
 
-val GlobalLogger = DBLogger("runningLogs")
+val DefaultLogger: Logger by lazy{
+    FileLogger(File("log.log"))
+}
 
 open class FileLogger(file: File): Logger{
     val writer: FileWriter

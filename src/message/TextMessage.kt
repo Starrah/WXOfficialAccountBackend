@@ -5,8 +5,8 @@ import com.alibaba.fastjson.annotation.JSONField
 class TextMessage(
     ToUserName: String = "",
     FromUserName: String = "",
-    CreateTime: Int = (System.currentTimeMillis() / 1000).toInt(),
     Content: String? = null,
+    CreateTime: Int = (System.currentTimeMillis() / 1000).toInt(),
     MsgId: Long = 0
 ): Message(MessageType.text, ToUserName, FromUserName, CreateTime) {
     @JSONField(name = "MsgId")

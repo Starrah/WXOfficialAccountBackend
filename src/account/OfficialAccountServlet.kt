@@ -4,25 +4,16 @@ import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import message.Message
 import org.apache.commons.codec.digest.DigestUtils
-import org.bson.Document
-import utils.GlobalLogger
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
+import utils.Logger
 import utils.stringToQuery
 import java.io.PrintWriter
 import java.io.StringWriter
+import javax.servlet.http.HttpServlet
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
-
-abstract class OfficialAccountServlet(): HttpServlet() {
+abstract class OfficialAccountServlet(var logger: Logger?): HttpServlet() {
     abstract val account: OfficialAccount
-
-    override fun init() {
-        super.init()
-//        for(fi in account.forceInits()){
-//            fi.hashCode()//随便调用一个方法，以保证它被加载
-//        }
-    }
 
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
         try {
@@ -54,7 +45,7 @@ abstract class OfficialAccountServlet(): HttpServlet() {
 
             resp.sendError(400)
         }catch (e: Exception){
-            GlobalLogger.error(StringWriter().apply { e.printStackTrace(PrintWriter(this)) }.buffer.toString())
+            logger?.error(StringWriter().apply { e.printStackTrace(PrintWriter(this)) }.buffer.toString())
             throw e
         }
     }
@@ -91,7 +82,7 @@ abstract class OfficialAccountServlet(): HttpServlet() {
 
             resp.sendError(400)
         }catch (e: Exception){
-            GlobalLogger.error(StringWriter().apply { e.printStackTrace(PrintWriter(this)) }.buffer.toString())
+            logger?.error(StringWriter().apply { e.printStackTrace(PrintWriter(this)) }.buffer.toString())
             throw e
         }
     }

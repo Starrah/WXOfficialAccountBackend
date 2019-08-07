@@ -2,34 +2,32 @@ package wxrbj
 
 import account.OfficialAccount
 import account.OfficialAccountServlet
-import utils.GlobalLogger
 import utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
 import components.MediaOperation
-import utils.DB
+import utils.DBLogger
+
+val RBJLOGGER: DBLogger = DBLogger("runningLog", DB)
 
 object AccountRBJ: OfficialAccount(
     "XXXXX",
-    GlobalLogger,
-    MessageDBLogger("messages"),
+    RBJLOGGER,
+    MessageDBLogger("messages", DB),
     UsersRBJ,
     CONFIG.TESTACCOUNTAPPID,
     CONFIG.TESTACCOUNTAPPSECRET)
 {
-//    override fun forceInits(): List<ForceInit> {
-//        return listOf(HelloReplyer)
-//    }
 
     init {
         use(MediaOperation(DB.getCollection("medias")))
-        use(HelloReplyer)
+        use(RegisterReplyer)
     }
 
     override val users: UsersRBJ = UsersRBJ
 }
 
 @WebServlet("/")
-class AccountRBJServlet(): OfficialAccountServlet(){
+class AccountRBJServlet: OfficialAccountServlet(RBJLOGGER){
     override val account: OfficialAccount = AccountRBJ
 
     override fun init() {

@@ -11,7 +11,7 @@ import utils.ToObject
  * 使用方法：对于一个特定群体的用户，继承XXXUser类后，再定义单例XXXUsers: Users<XXXUser>(collection, XXXUser::class.java)
  */
 open class Users <T: User> (
-    /** 被泛型实例化的类对象 */clazz: Class<T>
+    /** 被泛型实例化的类对象 */protected val clazz: Class<T>
 )
 {
     protected val _usersList = ArrayList<T>()

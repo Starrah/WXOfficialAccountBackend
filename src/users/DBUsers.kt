@@ -18,6 +18,12 @@ open class DBUsers <T: DBUser> (
 ): Users<T>(clazz), Saveable
 {
     init {
+        load()
+    }
+
+    override fun load() {
+        _openIdMap.clear()
+        _usersList.clear()
         for (document in collection.find()) {
             val user = document.ToObject(clazz)
             if(user != null) {

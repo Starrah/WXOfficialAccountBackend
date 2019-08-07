@@ -1,9 +1,13 @@
-package utils
+package wxrbj
 
 import CONFIG
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoDatabase
+import utils.DBLogger
+
+
+val MONGO_CLINET = MongoClient(MongoClientURI(CONFIG.MONGODB_URI))
 
 /**
  * 基础数据库对象，保存着到程序全局数据库的引用。
@@ -13,8 +17,4 @@ import com.mongodb.client.MongoDatabase
  *
  * collection.insertOne(Document().apply { append("test", 0) })//插入文档
  */
-public val DB = fun (): MongoDatabase {
-    val uri = MongoClientURI(CONFIG.MONGODB_URI)
-    val mongoClient = MongoClient(uri)
-    return mongoClient.getDatabase(CONFIG.MONGODB_DATABASE_NAME)
-}();
+val DB: MongoDatabase = MONGO_CLINET.getDatabase(CONFIG.MONGODB_DATABASE_NAME)
