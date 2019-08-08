@@ -20,6 +20,11 @@ fun Date.sameDay(other: Date): Boolean{
     return this.year == other.year && this.month == other.month && this.day == other.day
 }
 
+fun Date.omitTime(): Date{
+    time = (time / 86400000) * 86400000
+    return this
+}
+
 /**
  * 日期对应的四位年份（如2019）
  */

@@ -1,6 +1,10 @@
 package users
 
 import com.mongodb.client.MongoCollection
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.apache.tomcat.jni.Global
 import org.bson.Document
 import utils.Saveable
 import utils.ToObject
@@ -18,7 +22,11 @@ open class DBUsers <T: DBUser> (
 ): Users<T>(clazz), Saveable
 {
     init {
-        load()
+         //延迟load的操作。若直接在init调用，子类的成员还没有来得及初始化，会抛出NPE
+        GlobalScope.launch {
+            delay(1000)
+            load()
+        }
     }
 
     override fun load() {
@@ -30,6 +38,7 @@ open class DBUsers <T: DBUser> (
                 _usersList.add(user)
                 user.collection = collection
                 user.openId?.let { _openIdMap.put(it, user) }
+                user.load()
             }
         }
     }

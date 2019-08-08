@@ -165,10 +165,6 @@ public object UsersRBJ: DBUsers<UserRBJ>(DB.getCollection("users"), UserRBJ::cla
     private val _tHUIdMap = LinkedHashMap<String, UserRBJ>()
     private val _nameMap = LinkedHashMap<String, UserRBJ>()
 
-    init {
-        load()
-    }
-
     override fun load() {
         super.load()
         _tHUIdMap.clear()

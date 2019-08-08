@@ -14,21 +14,21 @@ object AccountRBJ: OfficialAccount(
     RBJLOGGER,
     MessageDBLogger("messages", DB),
     UsersRBJ,
-    CONFIG.TESTACCOUNTAPPID,
-    CONFIG.TESTACCOUNTAPPSECRET)
+    CONFIG.RBJAPPID,
+    CONFIG.RBJAPPSECRET)
 {
 
     init {
         use(MediaOperation(DB.getCollection("medias")))
         use(RegisterReplyer)
+        use(BirthdayRemindComponent)
     }
 
     override val users: UsersRBJ = UsersRBJ
 }
 
-@WebServlet("/")
-class AccountRBJServlet: OfficialAccountServlet(RBJLOGGER){
-    override val account: OfficialAccount = AccountRBJ
+@WebServlet("/rbj")
+class AccountRBJServlet: OfficialAccountServlet(AccountRBJ, RBJLOGGER){
 
     override fun init() {
         super.init()

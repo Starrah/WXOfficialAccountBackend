@@ -27,7 +27,7 @@ open class DBUser (openId: String?, name: String?, collection: MongoCollection<D
             else if(name != null)queryDoc["name"] = name
             else throw Exception("不能保存openId和名字都为空的用户！")
             collection!!.replaceOne(
-                Document().append("openId", openId).append("name", name),
+                queryDoc,
                 this.ToBSONDoc()!!,
                 ReplaceOptions().upsert(true)
             )

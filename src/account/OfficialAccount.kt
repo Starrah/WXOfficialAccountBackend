@@ -2,16 +2,11 @@ package account
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import components.MediaOperation
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import message.Message
 import message.TemplateMessage
-import users.DBUsers
 import users.Users
 import utils.*
-import java.awt.Component
 import java.util.*
 
 abstract class OfficialAccount (val token: String, val logger: Logger? = null, open val msgLogger: MessageDBLogger? = null, open val users: Users<*>?, private val APPID: String? = null, private val APPSECRET: String? = null, val operToken: String = token) {
@@ -25,9 +20,9 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
         var expires_in: String = ""
     }
 
-    private fun updateAccessToken() {
-        if(APPID == null || APPSECRET == null)return
-        GlobalScope.launch {
+    private fun updateAccessTokenAsync(): Deferred<Unit> {
+        if(APPID == null || APPSECRET == null)return GlobalScope.async {  }
+        return GlobalScope.async {
             val query = mapOf("grant_type" to "client_credential", "appid" to APPID, "secret" to APPSECRET)
             val url = "https://api.weixin.qq.com/cgi-bin/token"
             try {
@@ -116,11 +111,13 @@ abstract class OfficialAccount (val token: String, val logger: Logger? = null, o
     }
 
     init {
-        updateAccessToken()
+        runBlocking {
+            updateAccessTokenAsync().await()
+        }
         val timer = Timer()
         timer.schedule(object: TimerTask(){
             override fun run() {
-                updateAccessToken()
+                updateAccessTokenAsync()
             }
         }, ACCESS_TOKEN_UPDATE_INTERVAL, ACCESS_TOKEN_UPDATE_INTERVAL)
         operation.registerHandler("accessToken") { obj->

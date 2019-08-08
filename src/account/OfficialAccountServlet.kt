@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-abstract class OfficialAccountServlet(var logger: Logger?): HttpServlet() {
-    abstract val account: OfficialAccount
+abstract class OfficialAccountServlet(val account: OfficialAccount, var logger: Logger?): HttpServlet() {
 
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
         try {
