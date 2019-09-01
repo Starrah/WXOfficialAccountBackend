@@ -3,3 +3,6 @@ src/config.kt
 testAccount
 src/testAcPrivate/*.*
 .idea
+tempSave/*.*
+*.iml
+WxOffAccBkd.jar

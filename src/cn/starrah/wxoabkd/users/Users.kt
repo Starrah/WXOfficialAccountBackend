@@ -1,9 +1,4 @@
-package users
-
-import com.mongodb.client.MongoCollection
-import org.bson.Document
-import utils.Saveable
-import utils.ToObject
+package cn.starrah.wxoabkd.users
 
 /**
  * 用户信息管理的泛型类定义。

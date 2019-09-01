@@ -1,6 +1,4 @@
-package utils;
-
-import account.OfficialAccount;
+package cn.starrah.wxoabkd.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

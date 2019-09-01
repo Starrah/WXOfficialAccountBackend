@@ -1,4 +1,4 @@
-package utils
+package cn.starrah.wxoabkd.utils
 
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ interface NetworkResInterface {}
  */
 class NetworkBadRespondedException(val statusCode: Int, val resStr: String, val reqUrl: String? = null) : Exception(
         "Request " + (if (reqUrl != null) "to ${reqUrl} " else "") + "responded with status ${statusCode} : " + resStr),
-        NetworkResInterface {}
+                                                                                                          NetworkResInterface {}
 
 private fun AssertContentTypeJson(headers: Map<String, String>?): Boolean {
     if (headers != null) {
@@ -68,8 +68,8 @@ class NetworkResponse<T>(
 /**
  * 将query的Map表示转换为query字符串，不含?
  *
- * @param query 表示query的Map，例如mapOf("qwq" to "a", "yyy" to b)
- * @return query字符串，例如"qwq=a&yyy=b"
+ * @param query 表示query的Map，例如mapOf("cn.starrah.wxoabkd.qwq" to "a", "yyy" to b)
+ * @return query字符串，例如"cn.starrah.wxoabkd.qwq=a&yyy=b"
  */
 fun queryToString(query: Map<String, String>): String {
     var str = ""
@@ -82,8 +82,8 @@ fun queryToString(query: Map<String, String>): String {
 /**
  * 将query字符串转换为query的Map表示
  *
- * @param str query字符串，例如"qwq=a&yyy=b"。前面含不含"?"都可以，或者是整个网址也可以，会忽略?之前的部分
- * @return 表示query的Map，例如mapOf("qwq" to "a", "yyy" to b)
+ * @param str query字符串，例如"cn.starrah.wxoabkd.qwq=a&yyy=b"。前面含不含"?"都可以，或者是整个网址也可以，会忽略?之前的部分
+ * @return 表示query的Map，例如mapOf("cn.starrah.wxoabkd.qwq" to "a", "yyy" to b)
  * @throws Exception 如果字符串中含有多个?，或&、=出现的位置不合适
  */
 fun stringToQuery(str: String?): Map<String, String> {
@@ -114,7 +114,7 @@ fun stringToQuery(str: String?): Map<String, String> {
  *
  * 或GlobalScope.async{ request(...) }//异步处理，所在函数会立刻返回。返回值可以被await。
  *
- * @param url 请求的URL。通常只包括URL部分（例如，api.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
+ * @param url 请求的URL。通常只包括URL部分（例如，api.cn.starrah.wxoabkd.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
  * @param method 请求的方法，默认为GET
  * @param body 请求的消息体，仅限POST等有消息体的方法。可以传入String或其他任何类型。传入String时，直接作为消息体；否则，作为JSON解析后作为消息体，并自动添加“Content-Type: application/json”头。
  * @param responseClass 类对象，如果传入非null值，则返回值中会尝试按照所给的类做一次JSON反序列化。如果传入null值，则返回的NetworkResponse对象中resObj字段将为null。此时如编译器无法推断泛型类型，可以传入Nothing(kotlin)或不作为泛型方法(java)
@@ -130,13 +130,13 @@ fun stringToQuery(str: String?): Map<String, String> {
  * @throws NetworkBadRespondedException 如果网络连接失败或服务器返回4XX/5XX或返回的内容是JSON但JSON反序列化错误
  */
 suspend fun <T> request(
-        url: String,
-        method: RequestMethod = RequestMethod.GET,
-        body: Any? = null,
-        responseClass: Class<T>? = null,
-        query: Map<String, String>? = null,
-        headers: Map<String, String>? = null,
-        timeOut: Int = 5000
+    url: String,
+    method: RequestMethod = RequestMethod.GET,
+    body: Any? = null,
+    responseClass: Class<T>? = null,
+    query: Map<String, String>? = null,
+    headers: Map<String, String>? = null,
+    timeOut: Int = 5000
 ): NetworkResponse<T> {
     var realUrl: String = url
     if (url.contains('?')) {
@@ -224,7 +224,7 @@ suspend fun <T> request(
  *
  * 或GlobalScope.async{ request(...) }//异步处理，所在函数会立刻返回。返回值可以被await。
  *
- * @param url 请求的URL。通常只包括URL部分（例如，api.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
+ * @param url 请求的URL。通常只包括URL部分（例如，api.cn.starrah.wxoabkd.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
  * @param method 请求的方法，默认为GET
  * @param formKey 文件在表单项中对应的键名
  * @param file 要发送的文件对象
@@ -242,15 +242,15 @@ suspend fun <T> request(
  * @throws NetworkBadRespondedException 如果网络连接失败或服务器返回4XX/5XX
  */
 suspend fun <T> requestUploadFile(
-        url: String,
-        method: RequestMethod = RequestMethod.POST,
-        formKey: String,
-        file: File,
-        otherKVPairs: Map<String, String>? = null,
-        responseClass: Class<T>? = null,
-        query: Map<String, String>? = null,
-        headers: Map<String, String>? = null,
-        timeOut: Int = 5000
+    url: String,
+    method: RequestMethod = RequestMethod.POST,
+    formKey: String,
+    file: File,
+    otherKVPairs: Map<String, String>? = null,
+    responseClass: Class<T>? = null,
+    query: Map<String, String>? = null,
+    headers: Map<String, String>? = null,
+    timeOut: Int = 5000
 ): NetworkResponse<T> {
     var realUrl: String = url
     if (url.contains('?')) {
@@ -334,7 +334,7 @@ suspend fun <T> requestUploadFile(
  *
  * 或GlobalScope.async{ request(...) }//异步处理，所在函数会立刻返回。返回值可以被await。
  *
- * @param url 请求的URL。通常只包括URL部分（例如，api.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
+ * @param url 请求的URL。通常只包括URL部分（例如，api.cn.starrah.wxoabkd.qwq.com/yyy，不含?及其后面的query串）；但当query传null时，本部分也可直接包含带query串的完整请求URL。但注意不能URL中既带?，又在query参数中传入非null值，否则不能正确请求且抛出异常。
  * @param method 请求的方法，默认为GET
  * @param file 目标要保存的文件对象
  * @param body 请求的消息体，仅限POST等有消息体的方法。可以传入String或其他任何类型。传入String时，直接作为消息体；否则，作为JSON解析后作为消息体，并自动添加“Content-Type: application/json”头。
@@ -349,13 +349,13 @@ suspend fun <T> requestUploadFile(
  * @throws NetworkBadRespondedException 如果网络连接失败或服务器返回4XX/5XX
  */
 suspend fun requestDownloadFile(
-        url: String,
-        method: RequestMethod = RequestMethod.GET,
-        file: File,
-        body: Any? = null,
-        query: Map<String, String>? = null,
-        headers: Map<String, String>? = null,
-        timeOut: Int = 5000
+    url: String,
+    method: RequestMethod = RequestMethod.GET,
+    file: File,
+    body: Any? = null,
+    query: Map<String, String>? = null,
+    headers: Map<String, String>? = null,
+    timeOut: Int = 5000
 ): File {
     var realUrl: String = url
     if (url.contains('?')) {

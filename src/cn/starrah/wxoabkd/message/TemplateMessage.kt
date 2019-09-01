@@ -1,10 +1,9 @@
-package message
+package cn.starrah.wxoabkd.message
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.fastjson.annotation.JSONField
-import utils.Color2String
-import utils.String2Color
+import cn.starrah.wxoabkd.utils.Color2String
 import java.awt.Color
 
 abstract class TemplateMessage(
@@ -32,7 +31,7 @@ abstract class TemplateMessage(
         val origin = toChildClassDefinedPropertiesJSONObject()
         val inner = JSONObject()
         for((key, value) in origin.entries){
-            inner[key] = mapOf("value" to value, "color" to Color2String(colors[key]?:defaultColor))
+            inner[key] = mapOf("value" to value, "color" to Color2String(colors[key] ?: defaultColor))
         }
         val outter = JSONObject()
         outter["touser"] = ToUserName

@@ -1,12 +1,12 @@
-package utils
+package cn.starrah.wxoabkd.utils
 
-import account.MessageReplyer
+import cn.starrah.wxoabkd.account.MessageReplyer
 import com.alibaba.fastjson.JSONObject
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.CreateCollectionOptions
-import message.Message
-import message.TextMessage
+import cn.starrah.wxoabkd.message.Message
+import cn.starrah.wxoabkd.message.TextMessage
 import org.bson.Document
 import java.io.File
 import java.io.FileWriter
@@ -72,7 +72,7 @@ open class DBLogger(collectionName: String, database: MongoDatabase): Logger {
     override fun log(message: String, level: LogLevel) {
         val document = Document()
         attachTimeLevelMeta(document, level)
-        document.append("message", message)
+        document.append("", message)
         collection.insertOne(document)
     }
 
@@ -99,7 +99,8 @@ enum class MessageReceiveSendType {
     SEND,
 }
 
-open class MessageDBLogger(collectionName: String, database: MongoDatabase): DBLogger(collectionName, database), MessageLogger {
+open class MessageDBLogger(collectionName: String, database: MongoDatabase): DBLogger(collectionName, database),
+                                                                             MessageLogger {
     override fun logMessage(
         reqMessage: Message,
         resMessage: Message,

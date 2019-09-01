@@ -1,10 +1,10 @@
-package message
+package cn.starrah.wxoabkd.message
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.annotation.JSONField
 import org.bson.Document
 import org.json.XML
-import utils.ToBSONDoc
+import cn.starrah.wxoabkd.utils.ToBSONDoc
 
 enum class MessageType(val clazz: Class<*>) {
     text(TextMessage::class.java),

@@ -1,13 +1,12 @@
-package users
+package cn.starrah.wxoabkd.users
 
 import com.mongodb.client.MongoCollection
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.apache.tomcat.jni.Global
 import org.bson.Document
-import utils.Saveable
-import utils.ToObject
+import cn.starrah.wxoabkd.utils.Saveable
+import cn.starrah.wxoabkd.utils.ToObject
 
 /**
  * 用户信息管理的泛型类定义。

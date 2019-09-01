@@ -1,15 +1,15 @@
-package components
+package cn.starrah.wxoabkd.components
 
-import account.AccountComponent
-import account.OfficialAccount
+import cn.starrah.wxoabkd.account.AccountComponent
+import cn.starrah.wxoabkd.account.OfficialAccount
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.ReplaceOptions
-import message.ImageMessage
-import utils.Saveable
-import utils.ToBSONDoc
-import utils.assertBlank
+import cn.starrah.wxoabkd.message.ImageMessage
+import cn.starrah.wxoabkd.utils.Saveable
+import cn.starrah.wxoabkd.utils.ToBSONDoc
+import cn.starrah.wxoabkd.utils.assertBlank
 import org.bson.Document
 
 enum class MediaType(clazz: Class<*>?){
@@ -48,7 +48,8 @@ class Media(type: MediaType = MediaType.image,
  *
  * remove：参数key，要删掉的素材的key
  */
-class MediaOperation(val collection: MongoCollection<Document>): AccountComponent, Saveable{
+class MediaOperation(val collection: MongoCollection<Document>): AccountComponent,
+                                                                 Saveable {
     override fun registerTo(account: OfficialAccount) {
         account.operation.registerHandler("media"){ obj->
             account.operation.verifyTokenThrow(obj)

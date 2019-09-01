@@ -1,9 +1,9 @@
-package components
+package cn.starrah.wxoabkd.components
 
-import account.MessageReplyer
-import account.OfficialAccount
-import message.Message
-import message.TextMessage
+import cn.starrah.wxoabkd.account.MessageReplyer
+import cn.starrah.wxoabkd.account.OfficialAccount
+import cn.starrah.wxoabkd.message.Message
+import cn.starrah.wxoabkd.message.TextMessage
 
 class SimpleTextReplyer<T: OfficialAccount>(account: T, var textToReply: String, factor: Double = 0.9, nameInLog: String? = null):
     MessageReplyer<T>(account, factor, nameInLog) {

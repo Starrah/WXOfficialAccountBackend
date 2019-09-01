@@ -1,17 +1,17 @@
-package users
+package cn.starrah.wxoabkd.users
 
-import com.alibaba.fastjson.JSONObject
 import com.alibaba.fastjson.annotation.JSONField
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.ReplaceOptions
 import org.bson.Document
-import utils.Saveable
-import utils.ToBSONDoc
+import cn.starrah.wxoabkd.utils.Saveable
+import cn.starrah.wxoabkd.utils.ToBSONDoc
 
 /**
  * 以MongoDB数据库作为存储支持的用户类。
  */
-open class DBUser (openId: String?, name: String?, collection: MongoCollection<Document>? = null): User(openId, name), Saveable{
+open class DBUser (openId: String?, name: String?, collection: MongoCollection<Document>? = null): User(openId, name),
+                                                                                                   Saveable {
 
     @Suppress("CanBePrimaryConstructorProperty")
     @JSONField(serialize = false)

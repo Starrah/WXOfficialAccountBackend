@@ -1,4 +1,4 @@
-package message
+package cn.starrah.wxoabkd.message
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject

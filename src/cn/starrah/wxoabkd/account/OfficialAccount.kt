@@ -1,12 +1,12 @@
-package account
+package cn.starrah.wxoabkd.account
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
 import kotlinx.coroutines.*
-import message.Message
-import message.TemplateMessage
-import users.Users
-import utils.*
+import cn.starrah.wxoabkd.message.Message
+import cn.starrah.wxoabkd.message.TemplateMessage
+import cn.starrah.wxoabkd.users.Users
+import cn.starrah.wxoabkd.utils.*
 import java.util.*
 
 abstract class OfficialAccount(
@@ -34,7 +34,8 @@ abstract class OfficialAccount(
             val query = mapOf("grant_type" to "client_credential", "appid" to APPID, "secret" to APPSECRET)
             val url = "https://api.weixin.qq.com/cgi-bin/token"
             try {
-                val resObj = request(url = url, responseClass = AccessTokenResponseBean::class.java, query = query).resObj!!
+                val resObj = request(url = url,
+                    responseClass = AccessTokenResponseBean::class.java, query = query).resObj!!
                 assertWXAPIErr(resObj)
                 accessToken = resObj.access_token
                 logger?.info("Access Token Success")

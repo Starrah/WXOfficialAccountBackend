@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package utils
+package cn.starrah.wxoabkd.utils
 
 import com.alibaba.fastjson.JSON
 import kotlinx.coroutines.*

@@ -1,8 +1,9 @@
-package account
+package cn.starrah.wxoabkd.account
 
-import message.Message
+import cn.starrah.wxoabkd.message.Message
 
-abstract class MessageReplyer <T: OfficialAccount> (val account: T, val factor: Double, nameInLog: String? = null): AccountComponent {
+abstract class MessageReplyer <T: OfficialAccount> (val account: T, val factor: Double, nameInLog: String? = null):
+    AccountComponent {
     abstract fun reply(message: Message): Message?;
 
     val nameInLog: String

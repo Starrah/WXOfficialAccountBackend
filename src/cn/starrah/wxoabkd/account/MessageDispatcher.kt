@@ -1,13 +1,12 @@
-package account
+package cn.starrah.wxoabkd.account
 
 import com.alibaba.fastjson.JSONObject
-import message.Message
-import message.NoMessage
-import org.bson.Document
+import cn.starrah.wxoabkd.message.Message
+import cn.starrah.wxoabkd.message.NoMessage
 import java.lang.Exception
 
 open class MessageDispatcher(val account: OfficialAccount){
-    open fun dispatchMessage(reqMessage: Message): Message{
+    open fun dispatchMessage(reqMessage: Message): Message {
         var resMessage: Message? = null
         var chosenReplyer: MessageReplyer<*>? = null
         for(replyer in replyers){

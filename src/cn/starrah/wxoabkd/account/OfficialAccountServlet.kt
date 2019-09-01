@@ -1,11 +1,11 @@
-package account
+package cn.starrah.wxoabkd.account
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import message.Message
+import cn.starrah.wxoabkd.message.Message
 import org.apache.commons.codec.digest.DigestUtils
-import utils.Logger
-import utils.stringToQuery
+import cn.starrah.wxoabkd.utils.Logger
+import cn.starrah.wxoabkd.utils.stringToQuery
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.servlet.http.HttpServlet

@@ -1,4 +1,4 @@
-package account
+package cn.starrah.wxoabkd.account
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
