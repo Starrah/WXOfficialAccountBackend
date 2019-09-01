@@ -4,3 +4,4 @@ testAccount
 src/testAcPrivate/*.*
 .idea
 tempSave/*.*
+*.iml
