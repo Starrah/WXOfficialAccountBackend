@@ -14,5 +14,8 @@
     <orderEntry type="library" name="kotlinx-coroutines-core-1.1.1-javadoc" level="project" />
     <orderEntry type="library" name="tomcat-lib" level="project" />
     <orderEntry type="library" name="commons-codec-1.11" level="project" />
+    <orderEntry type="library" name="httpclient-4.5.9" level="project" />
+    <orderEntry type="library" name="httpmime-4.5.9" level="project" />
+    <orderEntry type="library" name="httpcore-4.4.11" level="project" />
   </component>
 </module>

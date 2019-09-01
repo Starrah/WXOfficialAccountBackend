@@ -25,6 +25,7 @@ object HelloReplyer: MessageReplyer<AccountRBJ>(AccountRBJ, 1.0){
                 throw e
             }
         }
+        arrayOf<Int>().forEach{it.toString()}
         return resmessage
     }
 

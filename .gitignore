@@ -2,3 +2,4 @@ src/config.kt
 *.csv
 testAccount
 src/testAcPrivate/*.*
+.idea

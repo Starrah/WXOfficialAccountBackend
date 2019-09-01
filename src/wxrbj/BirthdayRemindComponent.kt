@@ -11,9 +11,9 @@ import wxTestAccount.AccountWXTest
 import java.util.*
 import kotlin.concurrent.schedule
 
-object BirthdayRemindComponent : AccountComponent{
+object BirthdayRemindComponent: AccountComponent {
 
-    val REMINDTIME = arrayOf(15,20,0)
+    val REMINDTIME = arrayOf(15, 20, 0)
     const val REMIND_BEFORE_DAYS = 2
     const val REMIND_INCLUDE_DAYS = 15
 
@@ -24,29 +24,30 @@ object BirthdayRemindComponent : AccountComponent{
             set(Calendar.HOUR_OF_DAY, REMINDTIME[0])
             set(Calendar.MINUTE, REMINDTIME[1])
             set(Calendar.SECOND, REMINDTIME[2])
-            if((this.timeInMillis - Calendar.getInstance().timeInMillis) < 60000)set(Calendar.DAY_OF_MONTH, get(Calendar.DAY_OF_MONTH) + 1)
+            if ((this.timeInMillis - Calendar.getInstance().timeInMillis) < 60000) set(Calendar.DAY_OF_MONTH,
+                get(Calendar.DAY_OF_MONTH) + 1)
         }
         Timer().schedule(
-            object: TimerTask(){
+            object: TimerTask() {
                 override fun run() {
                     val nowTime = Date().omitTime().time
                     val includedList = mutableListOf<Pair<UserRBJ, String>>()
                     val remindList = mutableListOf<Pair<UserRBJ, String>>()
-                    for(user in UsersRBJ.allUsers()){
-                        if(user.nextBirthday != null){
+                    for (user in UsersRBJ.allUsers()) {
+                        if (user.nextBirthday != null) {
                             val daysToGo = (Math.round((YMDFormat.parse(user.nextBirthday).time - nowTime).toFloat() / MS_IN_DAY))
-                            if(daysToGo in 0..REMIND_INCLUDE_DAYS)includedList.add(Pair(user, user.nextBirthday!!.substring(4)))
-                            if(daysToGo == REMIND_BEFORE_DAYS)remindList.add(Pair(user, user.nextBirthday!!.substring(4)))
-                            if(daysToGo <= 0)user.calNextBirthday()
+                            if (daysToGo in 0..REMIND_INCLUDE_DAYS) includedList.add(Pair(user, user.nextBirthday!!.substring(4)))
+                            if (daysToGo == REMIND_BEFORE_DAYS) remindList.add(Pair(user, user.nextBirthday!!.substring(4)))
+                            if (daysToGo <= 0) user.calNextBirthday()
                         }
                     }
                     var str1 = "将在${REMIND_BEFORE_DAYS}天后过生日："
-                    for((user, day) in remindList){
+                    for ((user, day) in remindList) {
                         str1 += "$day${user.name},"
                     }
                     str1 += "\r\n"
                     var str2 = "将在${REMIND_INCLUDE_DAYS}天内过生日："
-                    for((user, day) in includedList){
+                    for ((user, day) in includedList) {
                         str2 += "$day${user.name},"
                     }
                     runBlocking {
