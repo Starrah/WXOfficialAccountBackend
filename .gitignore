@@ -3,3 +3,4 @@ src/config.kt
 testAccount
 src/testAcPrivate/*.*
 .idea
+tempSave/*.*
