@@ -56,3 +56,5 @@ object UsersWXTest : DBUsers<UserWXTest>(DBWXTest.getCollection("users"), UserWX
         }
     }
 }
+
+

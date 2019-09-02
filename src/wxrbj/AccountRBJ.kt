@@ -7,6 +7,8 @@ import cn.starrah.wxoabkd.utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
 import cn.starrah.wxoabkd.components.MediaOperation
 import cn.starrah.wxoabkd.utils.DBLogger
+import java.io.PrintWriter
+import java.io.StringWriter
 
 val RBJLOGGER: DBLogger = DBLogger("runningLog", DB)
 
@@ -28,7 +30,7 @@ object AccountRBJ: OfficialAccount(
     override val users: UsersRBJ = UsersRBJ
 }
 
-@WebServlet("/rbj")
+@WebServlet("/")
 class AccountRBJServlet: OfficialAccountServlet(AccountRBJ, RBJLOGGER){
 
     override fun init() {
@@ -36,3 +38,9 @@ class AccountRBJServlet: OfficialAccountServlet(AccountRBJ, RBJLOGGER){
         account.logger?.info("Servlet Init SUCCESS")
     }
 }
+
+val defExcepHdler = fun(t: Thread, e: Throwable){
+    System.err.print("Exception in thread \"" + t.getName() + "\" ")
+    e.printStackTrace(System.err)
+    RBJLOGGER.error(StringWriter().apply { e.printStackTrace(PrintWriter(this)) }.buffer.toString())
+}.apply { Thread.setDefaultUncaughtExceptionHandler(this);print("qwqwq") }
