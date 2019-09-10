@@ -9,10 +9,10 @@ class Operation(val account: OfficialAccount){
     private val handlers =  mutableMapOf<String, MutableList<OperationHandler>>()
 
     fun registerHandler(oper: String, handler: OperationHandler) {
-        handlersOfOper(oper).add(handler)
+        getHandlers(oper).add(handler)
     }
 
-    fun handlersOfOper(oper: String): MutableList<OperationHandler>{
+    fun getHandlers(oper: String): MutableList<OperationHandler>{
         if(handlers[oper] == null){
             handlers[oper] = ArrayList<OperationHandler>()
         }
@@ -22,7 +22,7 @@ class Operation(val account: OfficialAccount){
     private fun invokeHandlers(oper: String, para: JSONObject): JSONObject?{
         var res: JSONObject? = JSONObject().apply { plusAssign(mapOf("errmsg" to "No such operation")) }
         var exception: Exception? = null
-        for((index, handler) in handlersOfOper(oper).withIndex()){
+        for((index, handler) in getHandlers(oper).withIndex()){
             try {
                 if (index == 0) res = handler(para)
                 else handler(para)

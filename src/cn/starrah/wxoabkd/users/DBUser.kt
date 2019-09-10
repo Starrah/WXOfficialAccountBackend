@@ -23,9 +23,9 @@ open class DBUser (openId: String?, name: String?, collection: MongoCollection<D
     override fun save() {
         if(collection != null){
             val queryDoc = Document()
-            if(openId != null)queryDoc["openId"] = openId
-            else if(name != null)queryDoc["name"] = name
-            else throw Exception("不能保存openId和名字都为空的用户！")
+            if(name != null)queryDoc["name"] = name
+            else if(openId != null)queryDoc["openId"] = openId
+            else throw Exception("不能保存名字和openId都为空的用户！")
             collection!!.replaceOne(
                 queryDoc,
                 this.ToBSONDoc()!!,
