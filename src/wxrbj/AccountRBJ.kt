@@ -6,6 +6,7 @@ import cn.starrah.wxoabkd.account.OfficialAccountServlet
 import cn.starrah.wxoabkd.utils.MessageDBLogger
 import javax.servlet.annotation.WebServlet
 import cn.starrah.wxoabkd.components.MediaOperation
+import cn.starrah.wxoabkd.components.SaveLoadOperation
 import cn.starrah.wxoabkd.utils.DBLogger
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -22,7 +23,8 @@ object AccountRBJ: OfficialAccount(
 {
 
     init {
-        use(MediaOperation(DB.getCollection("medias")))
+        val mediaOperation = MediaOperation(DB.getCollection("medias")).also { use(it) }
+        use(SaveLoadOperation(UsersRBJ, mediaOperation))
         use(RegisterReplyer)
         use(BirthdayRemindComponent)
     }

@@ -18,7 +18,8 @@ object RegisterReplyer: MessageReplyer<AccountRBJ>(AccountRBJ, 80.0){
                 else return TextMessage(message.FromUserName, message.ToUserName, "您的账号已注册并绑定在了另一个微信号上。如非您本人操作，或需要更改绑定过的微信号，请与管理员联系。")
             }
             user.openId = message.FromUserName
-            return TextMessage("您已注册成功，姓名：${user.name}。\r\n" +
+            user.save()
+            return TextMessage(message.FromUserName, message.ToUserName, "您已注册成功，姓名：${user.name}。\r\n" +
                     "以下是您的生日信息，亦请查看，如有问题请与管理员联系：：\r\n" +
                     "生日类型：${when(user.birthday.type){
                         Birthday.BirthdayType.UNKNOWN->"未选择"

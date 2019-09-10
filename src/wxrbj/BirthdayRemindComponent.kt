@@ -13,8 +13,8 @@ import kotlin.concurrent.schedule
 
 object BirthdayRemindComponent: AccountComponent {
 
-    val REMINDTIME = arrayOf(15, 20, 0)
-    const val REMIND_BEFORE_DAYS = 2
+    val REMINDTIME = arrayOf(16, 55, 0)
+    const val REMIND_BEFORE_DAYS = 4
     const val REMIND_INCLUDE_DAYS = 15
 
     const val MS_IN_DAY = 86400000
